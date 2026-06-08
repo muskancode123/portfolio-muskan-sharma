@@ -1,12 +1,12 @@
 from pathlib import Path
 import os
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-change-this-to-a-random-string-before-deploying'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-for-local')
 
-# Change to False when deploying
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -17,14 +17,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',                 # ← CORS
-    'home',                        # ← your app
+    'corsheaders',
+    'rest_framework',
+    'home',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',          # ← must be FIRST
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',     # ← for static files on Render
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,10 +55,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'portfolio.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR}/db.sqlite3"
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -78,8 +78,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── CORS Settings ──────────────────────────────────────────────
-# During development — allow localhost
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
@@ -89,6 +87,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5178",
     "http://localhost:5179",
     "http://localhost:5180",
+    # Add your Vercel URL here after deploying frontend:
+    # "https://your-portfolio.vercel.app",
 ]
-# After deploying frontend on Vercel, add your Vercel URL here too:
-# "https://your-portfolio.vercel.app",
