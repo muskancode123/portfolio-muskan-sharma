@@ -2,14 +2,23 @@ from pathlib import Path
 import os
 import dj_database_url
 
+# Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-for-local')
+# Security
+SECRET_KEY = os.environ.get(
+    "SECRET_KEY",
+    "django-insecure-local-dev-key"
+)
 
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get(
+    "ALLOWED_HOSTS",
+    "portfolio-muskan-sharma-production.up.railway.app,localhost,127.0.0.1"
+).split(",")
 
+# Applications
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -17,15 +26,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third-party apps
     'corsheaders',
     'rest_framework',
+
+    # Local apps
     'home',
 ]
 
+# Middleware
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -36,6 +52,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'portfolio.urls'
 
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -54,39 +71,73 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'portfolio.wsgi.application'
 
+# Database
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR}/db.sqlite3"
+        default=os.environ.get(
+            "DATABASE_URL",
+            f"sqlite:///{BASE_DIR}/db.sqlite3"
+        ),
+        conn_max_age=600
     )
 }
 
+# Password Validation
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
+# Internationalization
 LANGUAGE_CODE = 'en-us'
+
 TIME_ZONE = 'Asia/Kolkata'
+
 USE_I18N = True
+
 USE_TZ = True
 
+# Static Files
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_STORAGE = (
+    'whitenoise.storage.CompressedManifestStaticFilesStorage'
+)
+
+# Default Primary Key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:5176",
-    "http://localhost:5177",
-    "http://localhost:5178",
-    "http://localhost:5179",
-    "http://localhost:5180",
-    # Add your Vercel URL here after deploying frontend:
-    # "https://your-portfolio.vercel.app",
+
+    # Add Vercel URL after deployment
+    # "https://your-project.vercel.app",
 ]
+
+# CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "https://portfolio-muskan-sharma-production.up.railway.app",
+
+    # Add Vercel URL after deployment
+    # "https://your-project.vercel.app",
+]
+
+# DRF Settings
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ]
+}
